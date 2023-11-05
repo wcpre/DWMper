@@ -1,0 +1,85 @@
+-- Creating the Tables with Shortened Names
+CREATE TABLE time (
+ time_id INT PRIMARY KEY NOT NULL,
+ date DATE NOT NULL,
+ day INT NOT NULL,
+ month INT NOT NULL,
+ quarter INT NOT NULL,
+ year INT NOT NULL
+);
+CREATE TABLE doctor (
+ doctor_id INT PRIMARY KEY NOT NULL,
+ doctor_name VARCHAR(255) NOT NULL,
+ specialization VARCHAR(50) NOT NULL
+);
+CREATE TABLE patient (
+ patient_id INT PRIMARY KEY NOT NULL,
+ patient_name VARCHAR(255) NOT NULL,
+ age INT NOT NULL
+);
+-- Creating the Fact Table with a Shortened Name
+CREATE TABLE charges (
+ charge_id INT PRIMARY KEY NOT NULL,
+ time_id INT NOT NULL,
+ doctor_id INT NOT NULL,
+ patient_id INT NOT NULL,
+ count INT NOT NULL,
+ charge DECIMAL(10, 2) NOT NULL,
+ CONSTRAINT fk_charges_time FOREIGN KEY (time_id) REFERENCES time 
+(time_id),
+ CONSTRAINT fk_charges_doctor FOREIGN KEY (doctor_id) REFERENCES 
+doctor (doctor_id),
+ CONSTRAINT fk_charges_patient FOREIGN KEY (patient_id) REFERENCES 
+patient (patient_id)
+);
+-- Sample data for the time table
+INSERT INTO time (time_id, date, day, month, quarter, year)
+VALUES
+(1, '2023-01-01', 1, 1, 1, 2023),
+(2, '2023-02-15', 15, 2, 1, 2023),
+(3, '2023-03-30', 30, 3, 1, 2023),
+(4, '2023-04-10', 10, 4, 2, 2023),
+(5, '2023-05-20', 20, 5, 2, 2023);
+-- Sample data for the doctor table
+INSERT INTO doctor (doctor_id, doctor_name, specialization)
+VALUES
+(1, 'Dr. Smith', 'Cardiologist'),
+(2, 'Dr. Johnson', 'Dermatologist'),
+(3, 'Dr. Wilson', 'Orthopedic Surgeon'),
+(4, 'Dr. Davis', 'Pediatrician'),
+(5, 'Dr. Anderson', 'Gastroenterologist');
+-- Sample data for the patient table
+INSERT INTO patient (patient_id, patient_name, age)
+VALUES
+(101, 'Alice Smith', 35),
+(102, 'Bob Johnson', 28),
+(103, 'Carol Davis', 42),
+(104, 'David Wilson', 5),
+(105, 'Eve Anderson', 52);
+-- Sample data for the charges table
+INSERT INTO charges (charge_id, time_id, doctor_id, patient_id, count, charge)
+VALUES
+(1001, 1, 1, 101, 3, 300.00),
+(1002, 2, 2, 102, 2, 150.00),
+(1003, 3, 3, 103, 1, 100.00),
+(1004, 4, 4, 104, 4, 400.00),
+(1005, 5, 5, 105, 2, 200.00);
+-- Displaying the Tables
+SELECT * FROM time;
+SELECT * FROM doctor;
+SELECT * FROM patient;
+SELECT * FROM charges;
+-- Rollup: Count charges by doctor specialization
+SELECT specialization, SUM(charge) AS TotalCharge
+FROM doctor
+JOIN charges ON doctor.doctor_id = charges.doctor_id
+GROUP BY specialization;
+-- Drill Down: Count charges by doctor specialization and month
+SELECT
+ specialization,
+ MONTH(date) AS Month,
+ COUNT(*) AS ChargeCount
+FROM doctor
+JOIN charges ON doctor.doctor_id = charges.doctor_id
+JOIN time ON charges.time_id = time.time_id
+GROUP BY specialization, Month;

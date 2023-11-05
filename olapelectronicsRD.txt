@@ -1,0 +1,97 @@
+CREATE TABLE Time (
+ TimeKey INT PRIMARY KEY NOT NULL,
+ Date DATE NOT NULL,
+ Day INT NOT NULL,
+ Month INT NOT NULL,
+ Quarter INT NOT NULL,
+ Year INT NOT NULL
+);
+CREATE TABLE Item (
+ ItemKey INT PRIMARY KEY NOT NULL,
+ ItemName VARCHAR(255) NOT NULL,
+ Category VARCHAR(50) NOT NULL,
+ Brand VARCHAR(50) NOT NULL
+);
+CREATE TABLE Branch (
+ BranchKey INT PRIMARY KEY NOT NULL,
+ BranchName VARCHAR(255) NOT NULL,
+ City VARCHAR(50) NOT NULL,
+ State VARCHAR(50) NOT NULL
+);
+CREATE TABLE Location (
+ LocationKey INT PRIMARY KEY NOT NULL,
+ LocationName VARCHAR(255) NOT NULL,
+ Address VARCHAR(255) NOT NULL,
+ ZipCode VARCHAR(20) NOT NULL
+);
+CREATE TABLE Sales(
+ Sales_id INT PRIMARY KEY NOT NULL,
+ TimeKey INT NOT NULL,
+ ItemKey INT NOT NULL,
+ BranchKey INT NOT NULL,
+ LocationKey INT NOT NULL,
+ DollarsSold DECIMAL(10, 2) NOT NULL,
+ UnitsSold INT NOT NULL,
+ CONSTRAINT `fk_sales_time` FOREIGN KEY (`TimeKey`) REFERENCES `Time` 
+(`TimeKey`),
+ CONSTRAINT `fk_sales_item` FOREIGN KEY (`ItemKey`) REFERENCES `Item` 
+(`ItemKey`),
+ CONSTRAINT `fk_sales_branch` FOREIGN KEY (`BranchKey`) REFERENCES 
+`Branch` (`BranchKey`),
+ CONSTRAINT `fk_sales_location` FOREIGN KEY (`LocationKey`) REFERENCES 
+`Location` (`LocationKey`)
+);
+INSERT INTO Time (TimeKey, Date, Day, Month, Quarter, Year)
+VALUES
+(101, '2023-01-01', 1, 1, 1, 2023),
+(102, '2023-02-15', 15, 2, 1, 2023),
+(103, '2023-03-30', 30, 3, 1, 2023),
+(104, '2023-04-10', 10, 4, 2, 2023),
+(105, '2023-05-20', 20, 5, 2, 2023);
+INSERT INTO Item (ItemKey, ItemName, Category, Brand)
+VALUES
+(201, 'Laptop', 'Electronics', 'Dell'),
+(202, 'Smartphone', 'Electronics', 'Apple'),
+(203, 'Coffee Maker', 'Appliances', 'Breville'),
+(204, 'Running Shoes', 'Sports', 'Nike'),
+(205, 'Sunglasses', 'Fashion', 'Ray-Ban');
+INSERT INTO Branch (BranchKey, BranchName, City, State)
+VALUES
+(301, 'Main Street Store', 'New York', 'NY'),
+(302, 'Downtown Branch', 'Los Angeles', 'CA'),
+(303, 'Suburb Store', 'Chicago', 'IL'),
+(304, 'Mall Location', 'Miami', 'FL'),
+(305, 'Corner Store', 'San Francisco', 'CA');
+INSERT INTO Location (LocationKey, LocationName, Address, ZipCode)
+VALUES
+(401, 'Mall Location A', '123 Mall Ave', '12345'),
+(402, 'Downtown Store B', '456 Elm St', '67890'),
+(403, 'Suburb Location C', '789 Oak Rd', '54321'),
+(404, 'Main Street Store D', '101 Main St', '98765'),
+(405, 'Corner Store E', '55 Elm St', '54321');
+INSERT INTO Sales
+VALUES
+(1001, 101, 201, 301, 401, 1500.00, 10),
+(1002, 102, 202, 302, 402, 2000.00, 15),
+(1003, 103, 203, 303, 403, 750.50, 5),
+(1004, 104, 204, 304, 404, 350.75, 3),
+(1005, 105, 205, 305, 405, 120.00, 2);
+-- Displaying the tables
+SELECT * FROM Time;
+SELECT * FROM Item;
+SELECT * FROM Branch;
+SELECT * FROM Location;
+SELECT * FROM Sales;
+-- Rollup 
+SELECT Month, SUM(DollarsSold) AS TotalSales
+FROM Time
+JOIN sales ON Time.TimeKey = Sales.Sales_id
+WHERE Time.TimeKey IN (101, 102, 103)
+GROUP BY Month;
+SELECT Year, SUM(UnitsSold) AS TotalUnitsSold FROM Sales
+JOIN Time ON Sales.TimeKey = Time.TimeKey
+GROUP BY Year;
+-- Drill Down
+SELECT Category, SUM(DollarsSold) AS TotalDollarsSold FROM Sales
+JOIN Item ON Sales.ItemKey = Item.ItemKey
+GROUP BY Category

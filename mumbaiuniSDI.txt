@@ -1,0 +1,95 @@
+-- Creating the Dimension Tables
+CREATE TABLE course_section (
+ course_section_id INT PRIMARY KEY NOT NULL,
+ course_name VARCHAR(255) NOT NULL,
+ department VARCHAR(50) NOT NULL,
+ semester INT NOT NULL
+);
+CREATE TABLE professor (
+ professor_id INT PRIMARY KEY NOT NULL,
+ professor_name VARCHAR(255) NOT NULL,
+ department VARCHAR(50) NOT NULL
+);
+CREATE TABLE student (
+ student_id INT PRIMARY KEY NOT NULL,
+ student_name VARCHAR(255) NOT NULL,
+ enrollment_date DATE NOT NULL
+);
+CREATE TABLE period (
+ period_id INT PRIMARY KEY NOT NULL,
+ period_name VARCHAR(255) NOT NULL,
+ start_date DATE NOT NULL,
+ end_date DATE NOT NULL
+);
+-- Creating the Fact Table
+CREATE TABLE GradesFact (
+ grade_id INT PRIMARY KEY NOT NULL,
+ course_section_id INT NOT NULL,
+ professor_id INT NOT NULL,
+ student_id INT NOT NULL,
+ period_id INT NOT NULL,
+ course_grade VARCHAR(2) NOT NULL,
+ CONSTRAINT `fk_grades_course_section` FOREIGN KEY 
+(`course_section_id`) REFERENCES `course_section` (`course_section_id`),
+ CONSTRAINT `fk_grades_professor` FOREIGN KEY (`professor_id`) 
+REFERENCES `professor` (`professor_id`),
+ CONSTRAINT `fk_grades_student` FOREIGN KEY (`student_id`) 
+REFERENCES `student` (`student_id`),
+ CONSTRAINT `fk_grades_period` FOREIGN KEY (`period_id`) 
+REFERENCES `period` (`period_id`)
+);
+-- Sample data for the course_section table
+INSERT INTO course_section (course_section_id, course_name, department, 
+semester)
+VALUES
+(1, 'Math 101', 'Mathematics', 1),
+(2, 'History 101', 'History', 1),
+(3, 'Physics 201', 'Physics', 2),
+(4, 'Computer Science 301', 'Computer Science', 3),
+(5, 'Biology 102', 'Biology', 1);
+-- Sample data for the professor table
+INSERT INTO professor (professor_id, professor_name, department)
+VALUES
+(1, 'Dr. Smith', 'Mathematics'),
+(2, 'Prof. Johnson', 'History'),
+(3, 'Dr. Johnson', 'Physics'),
+(4, 'Prof. Williams', 'Computer Science'),
+(5, 'Dr. Davis', 'Biology');
+-- Sample data for the student table
+INSERT INTO student (student_id, student_name, enrollment_date)
+VALUES
+(101, 'Alice Smith', '2022-09-15'),
+(102, 'Bob Johnson', '2022-08-20'),
+(103, 'Carol Davis', '2022-07-10'),
+(104, 'David Wilson', '2022-08-05'),
+(105, 'Eve Anderson', '2022-09-30');
+-- Sample data for the period table
+INSERT INTO period (period_id, period_name, start_date, end_date)
+VALUES
+(201, 'Fall 2022', '2022-08-01', '2022-12-15'),
+(202, 'Spring 2023', '2023-01-15', '2023-05-30'),
+(203, 'Summer 2023', '2023-06-01', '2023-08-15'),
+(204, 'Fall 2023', '2023-08-30', '2023-12-15'),
+(205, 'Spring 2024', '2024-01-15', '2024-05-30');
+-- Sample data for the GradesFact table
+INSERT INTO GradesFact (grade_id, course_section_id, professor_id, student_id, 
+period_id, course_grade)
+VALUES
+(1001, 1, 1, 101, 201, 'A'),
+(1002, 2, 2, 102, 202, 'B'),
+(1003, 3, 3, 103, 203, 'A'),
+(1004, 4, 4, 104, 204, 'C'),
+(1005, 5, 5, 105, 205, 'B');
+-- Displaying all Tables
+SELECT * FROM course_section;
+SELECT * FROM professor;
+SELECT * FROM student;
+SELECT * FROM period;
+SELECT * FROM GradesFact;
+-- slice
+SELECT * FROM GradesFact WHERE professor_id = 1;
+-- Dice: Select grades for specific courses, professors, and periods
+SELECT * FROM gradesfact
+WHERE course_section_id IN (101, 102) -- Specific courses
+AND professor_id = 201 -- Specific professor
+AND period_id = 301;
